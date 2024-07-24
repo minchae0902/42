@@ -1,0 +1,40 @@
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the CSV file
+file_path = '지역별도서관현황_20240724115856.csv'
+library_data = pd.read_csv(file_path, encoding='cp949')
+
+# Extract relevant columns
+columns_mapping = {
+    "도서관 수": "2021",
+    "총면적": "2021.1",
+    "총 좌석 수": "2021.3"
+}
+
+# Streamlit app
+st.title('지역별 도서관 현황')
+
+# Select attribute
+attribute = st.selectbox('속성을 선택하세요:', ['도서관 수', '총면적', '총 좌석 수'])
+
+# Select region
+region = st.text_input('지역을 입력하세요:', '전국')
+
+if attribute and region:
+    col = columns_mapping[attribute]
+    region_data = library_data[library_data['지역(1)'].str.contains(region)]
+
+    # Calculate values
+    values = region_data[col].str.replace(',', '').astype(float)
+    labels = region_data['지역(1)']
+    
+    # Plot pie chart
+    fig1, ax1 = plt.subplots()
+    ax1.pie(values, labels=labels, autopct='%1.1f%%', startangle=90)
+    ax1.axis('equal')
+    
+    st.pyplot(fig1)
+    st.write(f"{region}의 {attribute} 비율")
+
